@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anvil RPC Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .method-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .method-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .method-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Anvil RPC Interface</h1>
+        <p class="subtitle">Interfaz para interactuar con tu nodo Anvil local (http://127.0.0.1:8545)</p>
+        
+        <div class="method-section">
+            <div class="method-title">📊 eth_blockNumber</div>
+            <div class="method-description">Obtiene el número del bloque actual</div>
+            <button onclick="callMethod('eth_blockNumber', [])">Ejecutar</button>
+            <div id="result-blockNumber"></div>
+        </div>
+        
+        <div class="method-section">
+            <div class="method-title">👤 eth_accounts</div>
+            <div class="method-description">Obtiene la lista de cuentas disponibles</div>
+            <button onclick="callMethod('eth_accounts', [])">Ejecutar</button>
+            <div id="result-accounts"></div>
+        </div>
+        
+        <div class="method-section">
+            <div class="method-title">💰 eth_getBalance</div>
+            <div class="method-description">Obtiene el balance de una cuenta</div>
+            <div class="input-group">
+                <label>Dirección de la cuenta:</label>
+                <input type="text" id="balance-address" placeholder="0x..." value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266">
+            </div>
+            <button onclick="getBalance()">Obtener Balance</button>
+            <div id="result-balance"></div>
+        </div>
+        
+        <div class="method-section">
+            <div class="method-title">🔢 eth_blockNumber (hex to decimal)</div>
+            <div class="method-description">Obtiene el número del bloque en formato decimal</div>
+            <button onclick="getBlockNumberDecimal()">Ejecutar</button>
+            <div id="result-blockNumberDecimal"></div>
+        </div>
+        
+        <div class="method-section">
+            <div class="method-title">📝 eth_getTransactionCount</div>
+            <div class="method-description">Obtiene el número de transacciones (nonce) de una cuenta</div>
+            <div class="input-group">
+                <label>Dirección de la cuenta:</label>
+                <input type="text" id="nonce-address" placeholder="0x..." value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266">
+            </div>
+            <button onclick="getTransactionCount()">Obtener Nonce</button>
+            <div id="result-nonce"></div>
+        </div>
+        
+        <div class="method-section">
+            <div class="method-title">🔧 Método Personalizado</div>
+            <div class="method-description">Ejecuta cualquier método JSON-RPC</div>
+            <div class="input-group">
+                <label>Método:</label>
+                <input type="text" id="custom-method" placeholder="eth_gasPrice" value="eth_gasPrice">
+            </div>
+            <div class="input-group">
+                <label>Parámetros (JSON array, ej: ["0x...", "latest"]):</label>
+                <input type="text" id="custom-params" placeholder='[]' value='[]'>
+            </div>
+            <button onclick="callCustomMethod()">Ejecutar</button>
+            <div id="result-custom"></div>
+        </div>
+    </div>
+
+    <script>
+        const RPC_URL = 'http://127.0.0.1:8545';
+        
+        async function callRPC(method, params = []) {
+            try {
+                const response = await fetch(RPC_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: method,
+                        params: params,
+                        id: 1
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message || 'Unknown error');
+                }
+                
+                return data.result;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        async function callMethod(method, params = []) {
+            const resultId = `result-${method.replace('eth_', '').replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+            const resultDiv = document.getElementById(resultId);
+            
+            if (!resultDiv) {
+                console.error('Result div not found for:', resultId);
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const result = await callRPC(method, params);
+                resultDiv.className = 'result';
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function getBalance() {
+            const address = document.getElementById('balance-address').value.trim();
+            if (!address) {
+                alert('Por favor ingresa una dirección');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result-balance');
+            resultDiv.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const balanceHex = await callRPC('eth_getBalance', [address, 'latest']);
+                const balanceWei = parseInt(balanceHex, 16);
+                const balanceEth = balanceWei / 1e18;
+                
+                resultDiv.className = 'result';
+                resultDiv.textContent = `Balance: ${balanceHex}\nBalance (Wei): ${balanceWei}\nBalance (ETH): ${balanceEth.toFixed(4)}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function getBlockNumberDecimal() {
+            const resultDiv = document.getElementById('result-blockNumberDecimal');
+            resultDiv.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const blockNumberHex = await callRPC('eth_blockNumber', []);
+                const blockNumber = parseInt(blockNumberHex, 16);
+                
+                resultDiv.className = 'result';
+                resultDiv.textContent = `Block Number (hex): ${blockNumberHex}\nBlock Number (decimal): ${blockNumber}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function getTransactionCount() {
+            const address = document.getElementById('nonce-address').value.trim();
+            if (!address) {
+                alert('Por favor ingresa una dirección');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result-nonce');
+            resultDiv.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const nonceHex = await callRPC('eth_getTransactionCount', [address, 'latest']);
+                const nonce = parseInt(nonceHex, 16);
+                
+                resultDiv.className = 'result';
+                resultDiv.textContent = `Nonce (hex): ${nonceHex}\nNonce (decimal): ${nonce}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function callCustomMethod() {
+            const method = document.getElementById('custom-method').value.trim();
+            const paramsInput = document.getElementById('custom-params').value.trim();
+            
+            if (!method) {
+                alert('Por favor ingresa un método');
+                return;
+            }
+            
+            let params = [];
+            if (paramsInput) {
+                try {
+                    params = JSON.parse(paramsInput);
+                } catch (e) {
+                    alert('Parámetros inválidos. Debe ser un JSON array válido.');
+                    return;
+                }
+            }
+            
+            const resultDiv = document.getElementById('result-custom');
+            resultDiv.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const result = await callRPC(method, params);
+                resultDiv.className = 'result';
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
+
