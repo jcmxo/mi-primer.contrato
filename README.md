@@ -1,66 +1,182 @@
-## Foundry
+# Mi Primer Contrato
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Proyecto de aprendizaje de desarrollo de contratos inteligentes con Foundry. Este repositorio contiene ejemplos de contratos Solidity y herramientas para interactuar con ellos.
 
-Foundry consists of:
+## 📋 Contratos Incluidos
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+### MiContrato
+Contrato que almacena un valor numérico y permite solo al propietario modificarlo.
 
-## Documentation
+**Características:**
+- Almacena un valor `uint256`
+- Control de acceso: solo el owner puede cambiar el valor
+- Emite eventos cuando el valor cambia
 
-https://book.getfoundry.sh/
+### Counter
+Contrato contador simple que permite incrementar y establecer un número.
 
-## Usage
+**Características:**
+- Función `increment()` para aumentar el contador
+- Función `setNumber()` para establecer un valor específico
 
-### Build
+## 🚀 Inicio Rápido
 
-```shell
-$ forge build
+### Prerrequisitos
+
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) instalado
+- Git
+
+### Instalación
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/TU_USUARIO/mi-primer-contrato.git
+cd mi-primer-contrato
+
+# Instalar dependencias (si las hay)
+forge install
 ```
 
-### Test
+### Compilar
 
-```shell
-$ forge test
+```bash
+forge build
 ```
 
-### Format
+### Ejecutar Tests
 
-```shell
-$ forge fmt
+```bash
+# Tests básicos
+forge test
+
+# Tests con más detalles
+forge test -vv
+
+# Tests con máximo detalle
+forge test -vvv
+
+# Tests con reporte de gas
+forge test --gas-report
 ```
 
-### Gas Snapshots
+## 🧪 Probar en Anvil (Red Local)
 
-```shell
-$ forge snapshot
+### 1. Iniciar Anvil
+
+```bash
+anvil
 ```
 
-### Anvil
+Esto iniciará una blockchain local en `http://127.0.0.1:8545` con 10 cuentas pre-fundadas.
 
-```shell
-$ anvil
+### 2. Desplegar el Contrato
+
+En otra terminal:
+
+```bash
+# Para MiContrato
+forge script script/MiContrato.s.sol:MiContratoScript \
+  --rpc-url http://127.0.0.1:8545 \
+  --broadcast
+
+# Para Counter
+forge script script/Counter.s.sol:CounterScript \
+  --rpc-url http://127.0.0.1:8545 \
+  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+  --broadcast
 ```
 
-### Deploy
+### 3. Interactuar con el Contrato
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+Usa `cast` para interactuar con los contratos desplegados:
+
+```bash
+# Leer el valor de MiContrato
+cast call <DIRECCION> "value()(uint256)" --rpc-url http://127.0.0.1:8545
+
+# Cambiar el valor (solo owner)
+cast send <DIRECCION> "setValue(uint256)" 42 \
+  --rpc-url http://127.0.0.1:8545 \
+  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
 
-### Cast
+## 🌐 Interfaz Web para Anvil
 
-```shell
-$ cast <subcommand>
+Este proyecto incluye una interfaz HTML para interactuar con Anvil desde el navegador.
+
+### Usar la Interfaz
+
+1. Asegúrate de que Anvil esté corriendo en `http://127.0.0.1:8545`
+2. Abre `anvil-interface.html` en tu navegador
+3. Usa los botones para ejecutar métodos JSON-RPC comunes
+
+**Características:**
+- Ver número de bloque actual
+- Listar cuentas disponibles
+- Consultar balances
+- Obtener nonces de transacciones
+- Ejecutar métodos JSON-RPC personalizados
+
+## 📚 Documentación
+
+- [Cómo Probar MiContrato](COMO_PROBAR_MI_CONTRATO.md) - Guía detallada paso a paso
+- [Cómo Probar Counter](COMO_PROBAR.md) - Guía para el contrato Counter
+- [Foundry Book](https://book.getfoundry.sh/) - Documentación oficial de Foundry
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Formatear código
+forge fmt
+
+# Ver tamaño de contratos
+forge build --sizes
+
+# Limpiar archivos compilados
+forge clean
+
+# Ver balance de una cuenta en Anvil
+cast balance <DIRECCION> --rpc-url http://127.0.0.1:8545
+
+# Ver número de bloque
+cast block-number --rpc-url http://127.0.0.1:8545
 ```
 
-### Help
+## 📝 Estructura del Proyecto
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
 ```
+mi-primer-contrato/
+├── src/              # Contratos Solidity
+│   ├── MiContrato.sol
+│   └── Counter.sol
+├── script/           # Scripts de despliegue
+│   ├── MiContrato.s.sol
+│   └── Counter.s.sol
+├── test/             # Tests
+├── anvil-interface.html  # Interfaz web para Anvil
+└── foundry.toml      # Configuración de Foundry
+```
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
+
+## 🔗 Recursos
+
+- [Foundry Documentation](https://book.getfoundry.sh/)
+- [Solidity Documentation](https://docs.soliditylang.org/)
+- [Ethereum.org](https://ethereum.org/)
+
+---
+
+**Nota:** Este es un proyecto de aprendizaje. No uses las claves privadas de ejemplo en producción.
