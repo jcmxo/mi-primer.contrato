@@ -134,6 +134,73 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .changelog-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3e0;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .changelog-content {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .changelog-content h2 {
+            color: #ff9800;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ff9800;
+            padding-bottom: 5px;
+        }
+        
+        .changelog-content h2:first-child {
+            margin-top: 0;
+        }
+        
+        .changelog-content h3 {
+            color: #333;
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .changelog-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .changelog-content li {
+            margin-bottom: 5px;
+        }
+        
+        .changelog-toggle {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .changelog-toggle:hover {
+            background: #f57c00;
+        }
+        
+        .changelog-content.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -197,6 +264,68 @@
             </div>
             <button onclick="callCustomMethod()">Ejecutar</button>
             <div id="result-custom"></div>
+        </div>
+        
+        <div class="changelog-section">
+            <div class="method-title">📋 Control de Cambios (Changelog)</div>
+            <div class="method-description">Historial de cambios y mejoras del proyecto</div>
+            <button class="changelog-toggle" onclick="toggleChangelog()">Mostrar/Ocultar Changelog</button>
+            <div id="changelog-content" class="changelog-content hidden">
+                <h2>Changelog</h2>
+                <p>Todos los cambios notables en este proyecto serán documentados en este archivo.</p>
+                <p>El formato está basado en <a href="https://keepachangelog.com/es-ES/1.0.0/" target="_blank">Keep a Changelog</a>, y este proyecto adhiere a <a href="https://semver.org/lang/es/" target="_blank">Semantic Versioning</a>.</p>
+                
+                <h2>[Unreleased]</h2>
+                <h3>Agregado</h3>
+                <ul>
+                    <li>Sección de Changelog en la interfaz web para visualizar los cambios del proyecto</li>
+                    <li>Archivo CHANGELOG.md para documentar el historial de cambios</li>
+                </ul>
+                
+                <h2>[1.0.0] - 2025-01-23</h2>
+                <h3>Agregado</h3>
+                <ul>
+                    <li>Interfaz HTML (<code>anvil-interface.html</code>) para interactuar con Anvil desde el navegador</li>
+                    <li>Métodos RPC disponibles en la interfaz:
+                        <ul>
+                            <li><code>eth_blockNumber</code> - Obtener número de bloque actual</li>
+                            <li><code>eth_accounts</code> - Listar cuentas disponibles</li>
+                            <li><code>eth_getBalance</code> - Consultar balance de una cuenta</li>
+                            <li><code>eth_getTransactionCount</code> - Obtener nonce de transacciones</li>
+                            <li>Método personalizado para ejecutar cualquier método JSON-RPC</li>
+                        </ul>
+                    </li>
+                    <li>Script de publicación a GitHub (<code>publish-to-github.sh</code>)</li>
+                    <li>Documentación mejorada en README.md</li>
+                    <li>Guías de prueba: <code>COMO_PROBAR.md</code> y <code>COMO_PROBAR_MI_CONTRATO.md</code></li>
+                </ul>
+                <h3>Características</h3>
+                <ul>
+                    <li>Diseño moderno con gradiente púrpura</li>
+                    <li>Manejo de errores con mensajes claros</li>
+                    <li>Conversión automática de valores hex a decimal</li>
+                    <li>Conversión de balances de Wei a ETH</li>
+                    <li>Indicadores de carga visual</li>
+                </ul>
+                
+                <h2>[0.1.0] - 2025-01-23</h2>
+                <h3>Agregado</h3>
+                <ul>
+                    <li>Proyecto inicial con Foundry</li>
+                    <li>Contrato <code>MiContrato.sol</code> - Almacena un valor con control de acceso</li>
+                    <li>Contrato <code>Counter.sol</code> - Contador simple con funciones increment y setNumber</li>
+                    <li>Scripts de despliegue para ambos contratos</li>
+                    <li>Tests para los contratos</li>
+                    <li>Configuración de Foundry (<code>foundry.toml</code>)</li>
+                </ul>
+                
+                <hr style="margin-top: 20px; border: none; border-top: 1px solid #ddd;">
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    <strong>Notas:</strong><br>
+                    - Las versiones se basan en los commits principales del proyecto<br>
+                    - Los cambios se documentan en orden cronológico inverso (más recientes primero)
+                </p>
+            </div>
         </div>
     </div>
 
@@ -346,6 +475,11 @@
                 resultDiv.className = 'result error';
                 resultDiv.textContent = `Error: ${error.message}`;
             }
+        }
+        
+        function toggleChangelog() {
+            const changelogContent = document.getElementById('changelog-content');
+            changelogContent.classList.toggle('hidden');
         }
     </script>
 </body>
